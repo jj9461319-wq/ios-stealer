@@ -1,0 +1,83 @@
+// !$*UTF8*$!
+{
+    archiveVersion = 1;
+    classes = {};
+    objectVersion = 56;
+    objects = {
+        AAAA0001 = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = SystemHelper; sourceTree = BUILT_PRODUCTS_DIR; };
+        AAAA0002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+        AAAA0003 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+
+        AAAA0010 = { isa = PBXGroup; children = (AAAA0002, AAAA0003, AAAA0011); sourceTree = "<group>"; };
+        AAAA0011 = { isa = PBXGroup; children = (AAAA0001); name = Products; sourceTree = "<group>"; };
+
+        AAAA0020 = {
+            isa = PBXNativeTarget;
+            buildConfigurationList = AAAA0030;
+            buildPhases = (AAAA0021, AAAA0022);
+            buildRules = ();
+            dependencies = ();
+            name = SystemHelper;
+            productName = SystemHelper;
+            productReference = AAAA0001;
+            productType = "com.apple.product-type.application";
+        };
+
+        AAAA0021 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+        AAAA0022 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+
+        AAAA0040 = {
+            isa = PBXProject;
+            attributes = { LastUpgradeCheck = 1500; };
+            buildConfigurationList = AAAA0041;
+            compatibilityVersion = "Xcode 14.0";
+            developmentRegion = en;
+            hasScannedForEncodings = 0;
+            knownRegions = (en, Base);
+            mainGroup = AAAA0010;
+            productRefGroup = AAAA0011;
+            projectDirPath = "";
+            projectRoot = "";
+            targets = (AAAA0020);
+        };
+
+        AAAA0050 = {
+            isa = XCBuildConfiguration;
+            buildSettings = {
+                ARCHS = arm64;
+                CODE_SIGNING_ALLOWED = NO;
+                CODE_SIGNING_REQUIRED = NO;
+                CODE_SIGN_IDENTITY = "";
+                INFOPLIST_FILE = Info.plist;
+                IPHONEOS_DEPLOYMENT_TARGET = "15.0";
+                PRODUCT_BUNDLE_IDENTIFIER = "com.ofx.systemhelper";
+                PRODUCT_NAME = "$(TARGET_NAME)";
+                SDKROOT = iphoneos;
+                TARGETED_DEVICE_FAMILY = "1,2";
+            };
+            name = Debug;
+        };
+        AAAA0051 = {
+            isa = XCBuildConfiguration;
+            buildSettings = {
+                ARCHS = arm64;
+                CODE_SIGNING_ALLOWED = NO;
+                CODE_SIGNING_REQUIRED = NO;
+                CODE_SIGN_IDENTITY = "";
+                INFOPLIST_FILE = Info.plist;
+                IPHONEOS_DEPLOYMENT_TARGET = "15.0";
+                PRODUCT_BUNDLE_IDENTIFIER = "com.ofx.systemhelper";
+                PRODUCT_NAME = "$(TARGET_NAME)";
+                SDKROOT = iphoneos;
+                TARGETED_DEVICE_FAMILY = "1,2";
+            };
+            name = Release;
+        };
+        AAAA0060 = { isa = XCBuildConfiguration; buildSettings = { SDKROOT = iphoneos; }; name = Debug; };
+        AAAA0061 = { isa = XCBuildConfiguration; buildSettings = { SDKROOT = iphoneos; }; name = Release; };
+
+        AAAA0030 = { isa = XCConfigurationList; buildConfigurations = (AAAA0050, AAAA0051); defaultConfigurationName = Release; };
+        AAAA0041 = { isa = XCConfigurationList; buildConfigurations = (AAAA0060, AAAA0061); defaultConfigurationName = Release; };
+    };
+    rootObject = AAAA0040;
+}
