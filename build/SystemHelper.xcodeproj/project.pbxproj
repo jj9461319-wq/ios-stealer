@@ -8,6 +8,8 @@
         AAAA0002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
         AAAA0003 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 
+        AAAA0004 = {isa = PBXBuildFile; fileRef = AAAA0002; };
+
         AAAA0010 = { isa = PBXGroup; children = (AAAA0002, AAAA0003, AAAA0011); sourceTree = "<group>"; };
         AAAA0011 = { isa = PBXGroup; children = (AAAA0001); name = Products; sourceTree = "<group>"; };
 
@@ -23,7 +25,7 @@
             productType = "com.apple.product-type.application";
         };
 
-        AAAA0021 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+        AAAA0021 = { isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (AAAA0004,); runOnlyForDeploymentPostprocessing = 0; };
         AAAA0022 = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 
         AAAA0040 = {
