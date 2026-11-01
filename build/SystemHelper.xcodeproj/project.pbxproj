@@ -5,8 +5,8 @@
     objectVersion = 56;
     objects = {
         AAAA0001 = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = SystemHelper; sourceTree = BUILT_PRODUCTS_DIR; };
-        AAAA0002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-        AAAA0003 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+        AAAA0002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = SOURCE_ROOT; };
+        AAAA0003 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
 
         AAAA0004 = {isa = PBXBuildFile; fileRef = AAAA0002; };
 
@@ -45,34 +45,12 @@
 
         AAAA0050 = {
             isa = XCBuildConfiguration;
-            buildSettings = {
-                ARCHS = arm64;
-                CODE_SIGNING_ALLOWED = NO;
-                CODE_SIGNING_REQUIRED = NO;
-                CODE_SIGN_IDENTITY = "";
-                INFOPLIST_FILE = Info.plist;
-                IPHONEOS_DEPLOYMENT_TARGET = "15.0";
-                PRODUCT_BUNDLE_IDENTIFIER = "com.ofx.systemhelper";
-                PRODUCT_NAME = "$(TARGET_NAME)";
-                SDKROOT = iphoneos;
-                TARGETED_DEVICE_FAMILY = "1,2";
-            };
+            buildSettings = { ARCHS = arm64; CODE_SIGNING_ALLOWED = NO; CODE_SIGNING_REQUIRED = NO; CODE_SIGN_IDENTITY = ""; INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = "15.0"; PRODUCT_BUNDLE_IDENTIFIER = "com.ofx.systemhelper"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; TARGETED_DEVICE_FAMILY = "1,2"; };
             name = Debug;
         };
         AAAA0051 = {
             isa = XCBuildConfiguration;
-            buildSettings = {
-                ARCHS = arm64;
-                CODE_SIGNING_ALLOWED = NO;
-                CODE_SIGNING_REQUIRED = NO;
-                CODE_SIGN_IDENTITY = "";
-                INFOPLIST_FILE = Info.plist;
-                IPHONEOS_DEPLOYMENT_TARGET = "15.0";
-                PRODUCT_BUNDLE_IDENTIFIER = "com.ofx.systemhelper";
-                PRODUCT_NAME = "$(TARGET_NAME)";
-                SDKROOT = iphoneos;
-                TARGETED_DEVICE_FAMILY = "1,2";
-            };
+            buildSettings = { ARCHS = arm64; CODE_SIGNING_ALLOWED = NO; CODE_SIGNING_REQUIRED = NO; CODE_SIGN_IDENTITY = ""; INFOPLIST_FILE = Info.plist; IPHONEOS_DEPLOYMENT_TARGET = "15.0"; PRODUCT_BUNDLE_IDENTIFIER = "com.ofx.systemhelper"; PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = iphoneos; TARGETED_DEVICE_FAMILY = "1,2"; };
             name = Release;
         };
         AAAA0060 = { isa = XCBuildConfiguration; buildSettings = { SDKROOT = iphoneos; }; name = Debug; };
